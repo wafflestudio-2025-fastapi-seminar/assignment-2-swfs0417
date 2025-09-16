@@ -3,7 +3,7 @@ import re
 from pydantic import BaseModel, field_validator, EmailStr
 from fastapi import HTTPException
 
-from users.errors import InvalidPasswordException
+import src.users.errors as errors
 
 class CreateUserRequest(BaseModel):
     name: str
@@ -16,16 +16,27 @@ class CreateUserRequest(BaseModel):
     @field_validator('password', mode='after')
     def validate_password(cls, v):
         if len(v) < 8 or len(v) > 20:
-            raise InvalidPasswordException()
+            raise errors.InvalidPasswordException()
         return v
+      
+    @field_validator('email', mode='after')
+    def validate_email(cls, v):
+        global user_db
+        emails = [x['email'] for x in user_db]
+        if v in emails:
+          raise errors.ExistingEmailException()
     
     @field_validator('phone_number', mode='after')
     def validate_phone_number(cls, v):
-        pass
+        if not re.match(r"010-[0-9]{4}-[0-9]{4}", v):
+            raise errors.InvalidPhoneNumberException()
+        return v
 
     @field_validator('bio', mode='after')
     def validate_bio(cls, v):
-        pass
+        if len(v) > 500:
+            raise errors.TooLongBioException()
+        return v
 
 class UserResponse(BaseModel):
     user_id: int
