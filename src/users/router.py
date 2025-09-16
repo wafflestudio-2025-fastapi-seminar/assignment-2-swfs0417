@@ -19,7 +19,7 @@ def create_user(request: CreateUserRequest) -> UserResponse:
     uid = len(user_db) + 1
     data = request.model_dump()
     
-    new_data = {"user_id": uid} + data
+    new_data = {"user_id": uid} | data
     
     user_db.append(new_data)
     
