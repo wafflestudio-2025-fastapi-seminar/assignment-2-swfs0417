@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import Depends, Cookie
 
-from common.database import blocked_token_db, session_db, user_db
+from src.common.database import blocked_token_db, session_db, user_db
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
