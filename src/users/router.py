@@ -20,7 +20,6 @@ def create_user(request: CreateUserRequest) -> UserResponse:
 
   new_data["hashed_password"] = ph.hash(data["password"])
   del new_data["password"]
-  print(new_data)
   user_db.append(new_data)
 
   return UserResponse(**new_data)
