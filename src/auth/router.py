@@ -3,8 +3,6 @@ from fastapi import Depends, Cookie, Header
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import Response
 
-from server_ip import server_ip
-
 from src.common.database import blocked_token_db, session_db, user_db
 from src.auth.schemas import AuthenticationRequest, Token
 from src.common.custom_exception import CustomException
@@ -100,7 +98,6 @@ def session_login(request: AuthenticationRequest, response: Response):
   response.set_cookie(
     key="sid",
     value=sid,
-    domain="127.0.0.1:8000",
     path="/",
     samesite='lax',
     httponly=True,
@@ -115,7 +112,6 @@ def session_logout(response: Response, sid: str | None = Cookie(default=None)):
   response.set_cookie(
     key="sid",
     value=sid,
-    domain="127.0.0.1:8000",
     path="/",
     samesite='lax',
     httponly=True,
