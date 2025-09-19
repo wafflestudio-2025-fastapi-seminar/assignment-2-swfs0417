@@ -27,7 +27,7 @@ class CreateUserRequest(BaseModel):
   @classmethod
   def validate_email(cls, v):
     global user_db
-    emails = [x["email"] for x in user_db]
+    emails = [x.email for x in user_db]
     if v in emails:
       raise errors.ExistingEmailException()
     return v
