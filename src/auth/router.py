@@ -53,7 +53,7 @@ def verify_token(Authorization: str = Depends(auth_header)) -> str:
     # print(payload.get('exp'), datetime.now().timestamp())
     if payload.get('exp') < datetime.now().timestamp():
       raise CustomException(401, "ERR_008", "INVALID TOKEN")
-  except JWTerror.DecodeError:
+  except (JWTerror.JoseError):
     raise CustomException(400, "ERR_007", "BAD AUTHORIZATION HEADER")
   return token
 
