@@ -35,9 +35,8 @@ def get_user_info(sid: str | None = Depends(auth_cookie), token: str | None = De
     id = find_user_index_by_email(user_email)
     return UserResponse(**user_db[id].model_dump())
   if sid:
-    if sid in session_db:
-      sid = verify_session(sid)
-      id = find_user_index_by_email(session_db[sid])
-      return UserResponse(**user_db[id].model_dump())
-    raise CustomException(401, "ERR_006", "INVALID SESSION")
+    sid = verify_session(sid)
+    id = find_user_index_by_email(session_db[sid])
+    return UserResponse(**user_db[id].model_dump())
+    
   raise CustomException(401, "ERR_009", "UNAUTHENTICATED")
