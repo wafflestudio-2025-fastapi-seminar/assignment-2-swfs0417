@@ -54,7 +54,7 @@ def verify_token(Authorization: str = Depends(auth_header)) -> str:
     if payload.get('exp') < datetime.now().timestamp():
       raise CustomException(401, "ERR_008", "INVALID TOKEN")
   except (JWTerror.JoseError):
-    raise CustomException(400, "ERR_007", "BAD AUTHORIZATION HEADER")
+    raise CustomException(401, "ERR_008", "INVALID TOKEN")
   return token
 
 def verify_session(sid: str = Depends(auth_cookie)) -> str:
