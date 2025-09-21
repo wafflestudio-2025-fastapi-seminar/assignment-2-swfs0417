@@ -6,7 +6,7 @@ from src.users.schemas import CreateUserRequest, UserResponse
 from src.common.database import blocked_token_db, session_db, user_db, User, find_user_index_by_email
 from argon2 import PasswordHasher
 from src.auth.router import auth_header, auth_cookie
-from src.auth.router import verify_token, verify_session, session_login
+from src.auth.router import verify_token, verify_session, session_login, get_email_by_token
 from src.common.custom_exception import CustomException
 
 user_router = APIRouter(prefix="/users", tags=["users"])
@@ -30,7 +30,8 @@ def create_user(request: CreateUserRequest) -> UserResponse:
 @user_router.get("/me")
 def get_user_info(sid: str | None = Depends(auth_cookie), access_token: str | None = Depends(auth_header)):
   if access_token:
-    user_email, payload, token = verify_token(access_token)
+    token = verify_token(access_token)
+    user_email = get_email_by_token(token)
     id = find_user_index_by_email(user_email)
     return UserResponse(**user_db[id].model_dump())
   if sid:

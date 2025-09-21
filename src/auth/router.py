@@ -29,14 +29,19 @@ JWT_HEADER = {"alg": "HS256", "typ": "JWT"}
 
 def new_token(user_email: str) -> Token:
   '''new JWT token with given email'''
-  payload_acc = {"sub": user_email, "exp": (datetime.now() + timedelta(minutes=SHORT_SESSION_LIFESPAN))}
-  payload_ref = {"sub": user_email, "exp": (datetime.now() + timedelta(minutes=LONG_SESSION_LIFESPAN))}
+  payload_acc = {"sub": user_email, "exp": (datetime.now() + timedelta(minutes=SHORT_SESSION_LIFESPAN)).timestamp()}
+  payload_ref = {"sub": user_email, "exp": (datetime.now() + timedelta(minutes=LONG_SESSION_LIFESPAN)).timestamp()}
 
   token = {
     "access_token": jwt.encode(JWT_HEADER, payload_acc, SECRET_KEY),
     "refresh_token": jwt.encode(JWT_HEADER, payload_ref, SECRET_KEY),
   }
   return Token(**token)
+
+
+def get_email_by_token(token: str) -> str:
+  payload = jwt.decode(token, JWT_HEADER)
+  return payload.get('sub')
 
 def verify_token(Authorization: str = Depends(auth_header)) -> str:
   '''verify token and return token'''
@@ -61,6 +66,9 @@ def verify_session(sid: str = Depends(auth_cookie)) -> str:
   if sid not in session_db:
     raise CustomException(401, "ERR_006", "INVALID SESSION")
   try:
+    payload = jwt.decode(sid, SECRET_KEY)
+    if payload.get('exp') < datetime.now().timestamp():
+      raise CustomException(401, "ERR_006", "INVALID SESSION")
     find_user_index_by_email(session_db[sid])
   except InvalidAccountException:
     raise CustomException(401, "ERR_006", "INVALID SESSION")
@@ -104,7 +112,7 @@ def delete_token(token: str = Depends(verify_token)):
 
 @auth_router.post("/session", status_code=200)
 def session_login(response: Response, email = Depends(login)):
-  sid = uuid.uuid4().hex
+  sid = new_token(email).refresh_token
   session_db[sid] = email
   response.set_cookie(
     key="sid",
