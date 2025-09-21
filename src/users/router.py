@@ -28,14 +28,15 @@ def create_user(request: CreateUserRequest) -> UserResponse:
 
 
 @user_router.get("/me")
-def get_user_info(sid: str | None = Depends(auth_cookie), access_token: str | None = Depends(auth_header)):
-  if access_token:
-    token = verify_token(access_token)
+def get_user_info(sid: str | None = Depends(auth_cookie), token: str | None = Depends(auth_header)):
+  if token:
+    token = verify_token(token)
     user_email = get_email_by_token(token)
     id = find_user_index_by_email(user_email)
     return UserResponse(**user_db[id].model_dump())
   if sid:
     if sid in session_db:
+      sid = verify_session(sid)
       id = find_user_index_by_email(session_db[sid])
       return UserResponse(**user_db[id].model_dump())
     raise CustomException(401, "ERR_006", "INVALID SESSION")

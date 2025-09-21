@@ -40,8 +40,8 @@ def new_token(user_email: str) -> Token:
 
 
 def get_email_by_token(token: str) -> str:
-  payload = jwt.decode(token, JWT_HEADER)
-  return payload.get('sub')
+    payload = jwt.decode(token, SECRET_KEY)  # JWT_HEADER → SECRET_KEY로 변경
+    return payload.get('sub')
 
 def verify_token(Authorization: str = Depends(auth_header)) -> str:
   '''verify token and return token'''
