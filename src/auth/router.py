@@ -69,9 +69,9 @@ def verify_session(sid: str = Depends(auth_cookie)) -> str:
     payload = jwt.decode(sid, SECRET_KEY)
     if payload.get('exp') < datetime.now().timestamp():
       raise CustomException(401, "ERR_006", "INVALID SESSION")
-    find_user_index_by_email(session_db[sid])
   except InvalidAccountException:
     raise CustomException(401, "ERR_006", "INVALID SESSION")
+  return sid
 
 def login(idpw: AuthenticationRequest) -> str:
   user = user_db[find_user_index_by_email(idpw.email)]
